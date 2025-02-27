@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en-us">
-
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Unity Web Player | Nodi</title>
   <style>
     body {
@@ -13,18 +11,16 @@
       margin: 0;
       padding: 0;
       background-color: #282c34;
-      /* Nice dark background */
       color: white;
       font-family: Arial, sans-serif;
     }
-
     header {
       padding: 20px;
       font-size: 36px;
       font-weight: bold;
     }
-
-    #startButton {
+    #startButton,
+    #toggleChangelogButton {
       padding: 10px 20px;
       font-size: 24px;
       cursor: pointer;
@@ -33,20 +29,37 @@
       color: white;
       border-radius: 5px;
       margin: 20px auto;
+      display: block;
     }
-
     #gameContainer {
       display: none;
-      /* Hide game canvas until start button is pressed */
     }
-
     canvas {
       width: 1080px;
       height: 1920px;
       background: #231F20;
     }
-
-    /* Optional: Adjust canvas styling for smaller screens via media query */
+    /* Changelog Section Styling */
+    #changelogSection {
+      display: none;
+      margin: 20px auto;
+      max-width: 600px;
+      text-align: left;
+      background-color: #333;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    #changelogSection h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    #changelogSection ul {
+      list-style: none;
+      padding: 0;
+    }
+    #changelogSection li {
+      margin-bottom: 8px;
+    }
     @media (max-width: 768px) {
       canvas {
         width: 90%;
@@ -55,7 +68,6 @@
     }
   </style>
 </head>
-
 <body>
   <!-- Start Button -->
   <button id="startButton">Start Game</button>
@@ -64,6 +76,20 @@
   <div id="gameContainer">
     <canvas id="unity-canvas" width="1080" height="1920" tabindex="-1"></canvas>
   </div>
+  
+  <!-- Changelog Section (formatted as: Version: followed by changes) -->
+  <div id="changelogSection">
+    <h2>Changelog</h2>
+    <ul>
+      <li>v0.4.1</li>
+      <li>- Adjust background color. </li>
+      <li>- Add new settings menu (WIP). </li>
+      <li>- Add background flash effect when a level is completed. Color of the flash is selected based on last color swapped.</li>
+      <li>- Add a restart level option in the settings.</li>
+    </ul>
+  </div>
+  <!-- Toggle Changelog Button -->
+  <button id="toggleChangelogButton">Toggle Changelog</button>
 
   <script src="Build/MMGames.loader.js"></script>
   <script>
@@ -75,19 +101,17 @@
       document.getElementsByTagName('head')[0].appendChild(meta);
 
       var canvas = document.querySelector("#unity-canvas");
-      canvas.style.width = "90%";       // Set canvas width to 90% of viewport
-      canvas.style.height = "auto";      // Let height adjust automatically
-      canvas.style.display = "block";    // Ensures it behaves like a block element
-      canvas.style.margin = "0 auto";    // Center the canvas horizontally
+      canvas.style.width = "90%";
+      canvas.style.height = "auto";
+      canvas.style.display = "block";
+      canvas.style.margin = "0 auto";
     }
 
     // Start the game when the button is clicked
     document.getElementById("startButton").addEventListener("click", function () {
-      // Hide the start button and show the game container
       this.style.display = "none";
       document.getElementById("gameContainer").style.display = "block";
 
-      // Initialize the Unity WebGL instance
       createUnityInstance(document.querySelector("#unity-canvas"), {
         arguments: [],
         dataUrl: "Build/MMGames.data",
@@ -96,12 +120,21 @@
         streamingAssetsUrl: "StreamingAssets",
         companyName: "MMGames",
         productName: "Nodi",
-        productVersion: "0.3.0",
+        productVersion: "0.4.1",
       }).catch((error) => {
         console.error("Unity failed to load:", error);
       });
     });
+
+    // Toggle the changelog section visibility when the button is clicked
+    document.getElementById("toggleChangelogButton").addEventListener("click", function() {
+      var changelogSection = document.getElementById("changelogSection");
+      if (changelogSection.style.display === "none" || changelogSection.style.display === "") {
+        changelogSection.style.display = "block";
+      } else {
+        changelogSection.style.display = "none";
+      }
+    });
   </script>
 </body>
-
 </html>
