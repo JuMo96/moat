@@ -37,38 +37,31 @@
         display: block;
       }
       
-      /* Content container for game and changelog */
-      #contentContainer {
-        display: none; /* Hidden until Start button is clicked */
+      /* Hide game container and canvas until game is started */
+      #gameContainer {
+        display: none;
+        position: relative;
         width: 100%;
         height: 100%;
-        display: flex;
-        flex-direction: column; /* Default mobile: column layout */
       }
       
-      /* Game container fills available space and positions its canvas relatively */
-      #gameContainer {
-        flex: 1;
-        position: relative;
-      }
-      
-      canvas {
+      /* The canvas is hidden initially */
+      #unity-canvas {
+        display: none;
         background: #231F20;
       }
       
-      /* Base changelog styling */
+      /* Changelog styling */
       #changelogSection {
+        margin: 20px auto;
         text-align: left;
+        max-width: 600px;
         background: #333;
-        border-radius: 5px;
         padding: 10px;
-        margin: 20px;
+        border-radius: 5px;
       }
       #changelogSection h2 {
         margin-top: 0;
-        font-size: 1.5em;
-        border-bottom: 1px solid #555;
-        padding-bottom: 5px;
       }
       #changelogSection ul {
         list-style-type: none;
@@ -76,43 +69,6 @@
       }
       #changelogSection li {
         margin-bottom: 5px;
-        font-size: 0.9em;
-      }
-      
-      /* Desktop layout: changelog as left sidebar */
-      @media (min-width: 768px) {
-        #contentContainer {
-          flex-direction: row;
-        }
-        /* Place changelog to the left */
-        #changelogSection {
-          order: 1;
-          width: 300px;
-          height: 100%;
-          overflow-y: auto;
-          margin: 0;
-          padding: 20px;
-        }
-        /* Game container goes to the right */
-        #gameContainer {
-          order: 2;
-        }
-      }
-      
-      /* Mobile layout: changelog at the bottom */
-      @media (max-width: 767px) {
-        /* Order: game container on top, changelog below */
-        #gameContainer {
-          order: 1;
-        }
-        #changelogSection {
-          order: 2;
-          width: 100%;
-          max-height: 30vh;
-          overflow-y: auto;
-          margin: 0;
-          padding: 10px;
-        }
       }
     </style>
     
@@ -141,55 +97,52 @@
     <!-- Start Button -->
     <button id="startButton">Start Game</button>
     
-    <!-- Content Container for Game and Changelog -->
-    <div id="contentContainer">
-      <!-- Game Container -->
-      <div id="gameContainer">
-        <canvas id="unity-canvas" width="1080" height="1920" tabindex="-1"></canvas>
-      </div>
-      <!-- Changelog Section -->
-      <div id="changelogSection">
-        <h2>Changelog</h2>
-        <ul>
-          <li>[2/28/25] v0.4.2</li>
-          <li>- New Level Completed UI.</li>
-          <li>- Track level score based on times colors are swapped.</li>
-          <li>- Add cheerful text post level completion.</li>
-          <li>- Adjusted settings menu button design.</li>
-          <li>- Bug fixes related to untappable areas.</li>
-        </ul>
-        <ul>
-          <li>[2/27/25] v0.4.1</li>
-          <li>- Adjust background color.</li>
-          <li>- Add new settings menu (WIP).</li>
-          <li>- Add background flash effect when a level is completed. Color of the flash is selected based on last color swapped.</li>
-          <li>- Add a restart level option in the settings.</li>
-        </ul>
-      </div>
+    <!-- Game Container (initially hidden) -->
+    <div id="gameContainer">
+      <canvas id="unity-canvas" width="1080" height="1920" tabindex="-1"></canvas>
+    </div>
+    
+    <!-- Changelog Section -->
+    <div id="changelogSection">
+      <h2>Changelog</h2>
+      <ul>
+        <li>[2/28/25] v0.4.2</li>
+        <li>- New Level Completed UI.</li>
+        <li>- Track level score based on times colors are swapped.</li>
+        <li>- Add cheerful text post level completion.</li>
+        <li>- Adjusted settings menu button design.</li>
+        <li>- Bug fixes related to untappable areas.</li>
+      </ul>
+      <ul>
+        <li>[2/27/25] v0.4.1</li>
+        <li>- Adjust background color.</li>
+        <li>- Add new settings menu (WIP).</li>
+        <li>- Add background flash effect when a level is completed. Color of the flash is selected based on last color swapped.</li>
+        <li>- Add a restart level option in the settings.</li>
+      </ul>
     </div>
     
     <!-- Unity Loader -->
     <script src="Build/MMGames.loader.js"></script>
     <script>
-      // Function to resize the canvas to always fit its game container
+      // Function to resize the canvas to always fit the browser window
       // while preserving the 1080x1920 aspect ratio.
       function resizeCanvas() {
         var canvas = document.getElementById("unity-canvas");
         if (!canvas) return;
         var gameWidth = 1080;
         var gameHeight = 1920;
-        var gameContainer = document.getElementById("gameContainer");
-        var availableWidth = gameContainer.clientWidth;
-        var availableHeight = gameContainer.clientHeight;
-        var scale = Math.min(availableWidth / gameWidth, availableHeight / gameHeight);
+        var windowWidth = window.innerWidth;
+        var windowHeight = window.innerHeight;
+        var scale = Math.min(windowWidth / gameWidth, windowHeight / gameHeight);
         var newWidth = gameWidth * scale;
         var newHeight = gameHeight * scale;
         canvas.style.width = newWidth + "px";
         canvas.style.height = newHeight + "px";
-        // Center the canvas within its container.
+        // Center the canvas within the viewport.
         canvas.style.position = "absolute";
-        canvas.style.left = (availableWidth - newWidth) / 2 + "px";
-        canvas.style.top = (availableHeight - newHeight) / 2 + "px";
+        canvas.style.left = (windowWidth - newWidth) / 2 + "px";
+        canvas.style.top = (windowHeight - newHeight) / 2 + "px";
       }
       
       // Listen for window resize events.
@@ -199,13 +152,25 @@
       document.getElementById("startButton").addEventListener("click", function () {
         // Hide the start button.
         this.style.display = "none";
-        // Show the main content container.
-        document.getElementById("contentContainer").style.display = "flex";
-        // Adjust the canvas based on the game container size.
+        
+        // Show the game container and canvas.
+        var gameContainer = document.getElementById("gameContainer");
+        gameContainer.style.display = "block";
+        var canvas = document.getElementById("unity-canvas");
+        canvas.style.display = "block";
+        
+        // Apply mobile-specific styling if needed.
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          canvas.style.width = "90%"; // 90% of viewport width.
+          canvas.style.height = "auto"; // Height adjusts automatically.
+          canvas.style.margin = "0 auto"; // Center horizontally.
+        }
+        
+        // Adjust the canvas to the current window size.
         resizeCanvas();
         
         // Initialize the Unity WebGL instance.
-        createUnityInstance(document.getElementById("unity-canvas"), {
+        createUnityInstance(canvas, {
           arguments: [],
           dataUrl: "Build/MMGames.data",
           frameworkUrl: "Build/MMGames.framework.js",
@@ -221,6 +186,7 @@
     </script>
     
     <footer>
+
     </footer>
   </body>
 </html>
